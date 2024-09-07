@@ -20,16 +20,27 @@ size_options = {
     "1024x1024 (Large)": "1024x1024"
 }
 selected_size = st.selectbox("이미지 크기 선택:", list(size_options.keys()))
+image_size = size_options[selected_size]  # 선택된 크기에 따라 크기 값 설정
 
-# 선택된 크기에 따라 실제 크기 값을 가져오기
-image_size = size_options[selected_size]
+# 이미지 스타일 선택 메뉴 추가
+style_options = {
+    "스케치": "sketch style",
+    "수채화": "watercolor style",
+    "사진 화법": "photo style"
+}
+selected_style = st.selectbox("이미지 스타일 선택:", list(style_options.keys()))
+image_style = style_options[selected_style]  # 선택된 스타일에 따른 스타일 값 설정
 
+# "이미지 생성" 버튼
 if st.button("이미지 생성"):
     if prompt:
         try:
+            # 프롬프트에 스타일을 추가하여 최종 프롬프트 생성
+            final_prompt = f"{prompt}, {image_style}"
+
             kwargs = {
-                "prompt": prompt,
-                "n": 1,
+                "prompt": final_prompt,
+                "n": 2,  # 이미지 2개 생성
                 "size": image_size  # 사용자가 선택한 크기를 적용
             }
 
@@ -37,10 +48,11 @@ if st.button("이미지 생성"):
             response = client.images.generate(**kwargs)
 
             # 응답에서 이미지 URL 추출
-            image_url = response.data[0].url
+            image_urls = [image.url for image in response.data]
 
             # 생성된 이미지 표시
-            st.image(image_url, caption="생성된 이미지", use_column_width=True)
+            for i, image_url in enumerate(image_urls):
+                st.image(image_url, caption=f"생성된 이미지 {i+1}: {selected_style}", use_column_width=True)
 
         except Exception as e:
             st.error(f"이미지 생성 중 오류 발생: {e}")
