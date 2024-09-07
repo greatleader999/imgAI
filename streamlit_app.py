@@ -4,7 +4,7 @@ import os
 
 # OpenAI 클라이언트 초기화
 openai_api_key = st.secrets["openai"]["api_key"]
-client = OpenAI(api_key  = openai_api_key)
+client = OpenAI(api_key=openai_api_key)
 
 # Streamlit 앱 레이아웃
 st.title("AI 이미지 생성기")
@@ -13,13 +13,24 @@ st.write("텍스트 프롬프트를 입력하고 AI 이미지를 생성하세요
 # 텍스트 입력
 prompt = st.text_input("프롬프트를 입력하세요:")
 
+# 이미지 크기 선택 메뉴 추가
+size_options = {
+    "256x256 (Small)": "256x256",
+    "512x512 (Medium)": "512x512",
+    "1024x1024 (Large)": "1024x1024"
+}
+selected_size = st.selectbox("이미지 크기 선택:", list(size_options.keys()))
+
+# 선택된 크기에 따라 실제 크기 값을 가져오기
+image_size = size_options[selected_size]
+
 if st.button("이미지 생성"):
     if prompt:
         try:
             kwargs = {
                 "prompt": prompt,
-                "n":1,
-                "size":"1024x1024"
+                "n": 1,
+                "size": image_size  # 사용자가 선택한 크기를 적용
             }
 
             # OpenAI API를 사용하여 이미지 생성
